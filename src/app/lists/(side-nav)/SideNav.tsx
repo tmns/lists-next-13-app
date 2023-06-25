@@ -6,14 +6,26 @@ import List from "./List";
 import NewListForm from "./NewListForm";
 import { createList, deleteList, updateList } from "./_actions";
 
-export default async function SideNav() {
+interface SideNavProps {
+  isMobile?: boolean;
+}
+
+export default async function SideNav(props: SideNavProps) {
   const session = await getServerSession(authOptions);
   if (!session) redirect("/signin");
 
   const lists = await getLists(session?.user.id);
 
+  const isMobile = Boolean(props.isMobile);
+
   return (
-    <aside className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
+    <aside
+      className={
+        isMobile
+          ? "fixed inset-y-0 z-50 flex w-72 flex-col"
+          : "hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col"
+      }
+    >
       <div className="flex grow flex-col overflow-y-auto bg-default-bg px-6 pb-4">
         <div className="flex h-16 shrink-0 items-center text-3xl text-secondary">☑</div>
         <nav className="flex flex-1 flex-col">

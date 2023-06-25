@@ -12,7 +12,7 @@ export default async function List({ params }: RouteProps) {
 
   return (
     <>
-      <ul className="divide-y divide-zinc-400/40 p-2">
+      <ul className="divide-y divide-zinc-400/40 px-3 py-2 sm:px-4 lg:px-2">
         {items.map((item) => {
           return (
             <Item

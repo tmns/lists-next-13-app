@@ -47,7 +47,7 @@ export default function NewItemForm({ listId, items, createItem }: NewItemFormPr
   }
 
   return (
-    <div className="mt-auto p-4">
+    <div className="mt-auto px-5 sm:px-6 py-4 lg:px-4">
       <form className="flex items-center" onSubmit={addNewItem}>
         <Label.Root htmlFor="title">Add item</Label.Root>
         <input
