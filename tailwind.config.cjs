@@ -5,8 +5,7 @@ module.exports = {
     extend: {
       colors: {
         "default-bg": "rgb(1, 5, 36)",
-        "main-bg":
-          "radial-gradient(ellipse 200px 200px at 30% 40%,#3360ff,transparent), radial-gradient(200px 200px at 70% 60%,#3360ff,transparent)",
+        "main-bg": "linear-gradient(rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.05) 100%)",
         secondary: "#6466f1",
       },
       boxShadow: {
