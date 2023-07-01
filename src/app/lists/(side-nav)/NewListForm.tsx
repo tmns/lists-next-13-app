@@ -91,7 +91,7 @@ export default function NewListForm({ lists, createList }: NewListFormProps) {
         </>
       ) : (
         <button
-          className="flex w-full items-center p-4 pl-1 transition-colors duration-300 hover:bg-gray-800 hover:text-white"
+          className="flex w-full items-center rounded-md p-4 pl-1 transition-colors duration-300 hover:bg-secondary-bg hover:text-white"
           onClick={() => setIsCreating(true)}
         >
           <PlusIcon className="h-5 w-5" aria-hidden />

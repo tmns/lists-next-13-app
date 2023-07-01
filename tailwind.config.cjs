@@ -7,6 +7,7 @@ module.exports = {
         "default-bg": "rgb(1, 5, 36)",
         "main-bg": "linear-gradient(rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.05) 100%)",
         secondary: "#6466f1",
+        "secondary-bg": "#0d112f",
       },
       boxShadow: {
         "subtle-t": "0px -1px 0px rgb(255,255,255,.09)",

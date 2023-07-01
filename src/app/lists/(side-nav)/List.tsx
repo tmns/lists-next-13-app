@@ -69,8 +69,8 @@ export default function List({ lists, list, deleteList, updateList }: ListProps)
     <li
       className={`group/item flex cursor-pointer items-center justify-between rounded-sm text-left text-sm font-semibold leading-6 ${
         currentListId === list.id
-          ? "bg-gray-800 text-white"
-          : "text-gray-400 transition-colors duration-300 hover:bg-gray-800 hover:text-white"
+          ? "bg-secondary-bg text-white"
+          : "text-gray-400 transition-colors duration-300 hover:bg-secondary-bg hover:text-white"
       }`}
     >
       {isEditing ? (
@@ -90,10 +90,7 @@ export default function List({ lists, list, deleteList, updateList }: ListProps)
             {isExecuting ? (
               <Circles height="1em" width="1em" />
             ) : (
-              <CheckIcon
-                className="h-4 w-4 transition-colors duration-300"
-                aria-hidden
-              />
+              <CheckIcon className="h-4 w-4 transition-colors duration-300" aria-hidden />
             )}
             <span className="sr-only">Save new title</span>
           </button>
@@ -101,10 +98,7 @@ export default function List({ lists, list, deleteList, updateList }: ListProps)
             className="p-2 text-zinc-400 hover:text-white"
             onClick={() => setIsEditing(false)}
           >
-            <XMarkIcon
-              className="h-4 w-4 transition-colors duration-300"
-              aria-hidden
-            />
+            <XMarkIcon className="h-4 w-4 transition-colors duration-300" aria-hidden />
             <span className="sr-only">Cancel new title</span>
           </button>
         </form>
@@ -115,7 +109,7 @@ export default function List({ lists, list, deleteList, updateList }: ListProps)
             className="flex w-full items-center justify-between px-4 py-1"
           >
             <span className="truncate">{list.name}</span>
-            <DropdownMenu.Trigger className="flex h-4 place-items-center rounded-sm opacity-0 transition-colors duration-300 hover:bg-zinc-600 hover:text-white group-focus-within/item:opacity-100 group-hover/item:opacity-100">
+            <DropdownMenu.Trigger className="flex h-4 place-items-center rounded-sm opacity-0 transition-colors duration-300 hover:bg-gray-800 hover:text-white group-focus-within/item:opacity-100 group-hover/item:opacity-100">
               <EllipsisHorizontalIcon className="h-6 w-6" aria-hidden />
               <span className="sr-only">Options</span>
             </DropdownMenu.Trigger>
