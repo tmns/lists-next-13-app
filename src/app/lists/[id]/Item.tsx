@@ -2,8 +2,9 @@
 import { CheckIcon, PencilIcon, TrashIcon, XMarkIcon } from "@heroicons/react/20/solid";
 import * as Checkbox from "@radix-ui/react-checkbox";
 import * as Label from "@radix-ui/react-label";
-import { useAction, useOptimisticAction } from "next-safe-action/hook";
-import { startTransition, useEffect, useRef, useState } from "react";
+import { useAction } from "next-safe-action/hook";
+import { useOptimisticAction } from "../../../lib/next-safe-action-hooks";
+import { useEffect, useRef, useState } from "react";
 import { Circles } from "react-loading-icons";
 import Toast from "../Toast";
 import type { deleteItem, updateItem } from "./_actions";
@@ -21,12 +22,18 @@ export default function Item({ item, items, updateItem, deleteItem }: ItemProps)
   const editTitleInputRef = useRef<HTMLInputElement>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [error, setError] = useState("");
-  const { id, title, isChecked } = item;
-  const { execute, isExecuting } = useAction(updateItem, {
-    onSuccess: () => {
-      startTransition(() => setIsEditing(false));
-    },
-  });
+  const { id, title } = item;
+  const { execute, isExecuting, optimisticState } = useOptimisticAction(updateItem, item);
+  const [deleted, setDeleted] = useState(false);
+
+  useEffect(() => {
+    if (!isEditing) return;
+
+    editTitleInputRef.current?.select();
+  }, [isEditing]);
+
+  // Optimistic delete
+  if (deleted) return null;
 
   function updateTitle(e: React.SyntheticEvent) {
     e.preventDefault();
@@ -46,18 +53,17 @@ export default function Item({ item, items, updateItem, deleteItem }: ItemProps)
       return;
     }
 
-    void execute({ title: editedTitle, id });
+    void execute({ title: editedTitle, id }, { title: editedTitle });
+    setIsEditing(false);
+  }
+
+  function toggleCheck(isChecked: boolean) {
+    void execute({ isChecked, id }, { isChecked });
   }
 
   function showEditTitleInput() {
     setIsEditing(true);
   }
-
-  useEffect(() => {
-    if (!isEditing) return;
-
-    editTitleInputRef.current?.select();
-  }, [isEditing]);
 
   function closeOnEsc(e: React.KeyboardEvent) {
     if (e.key === "Escape") setIsEditing(false);
@@ -66,10 +72,10 @@ export default function Item({ item, items, updateItem, deleteItem }: ItemProps)
   return (
     <li className="group flex items-center p-2">
       <ToggleItemCheck
-        itemId={id}
-        isChecked={isChecked}
+        isChecked={optimisticState.isChecked}
         setError={setError}
-        updateItem={updateItem}
+        toggleCheck={toggleCheck}
+        isExecuting={isExecuting}
       />
       {isEditing ? (
         <>
@@ -89,8 +95,12 @@ export default function Item({ item, items, updateItem, deleteItem }: ItemProps)
           </form>
         </>
       ) : (
-        <span className={`ml-4 ${isChecked ? "text-zinc-400" : ""} transition-colors duration-300`}>
-          {title}
+        <span
+          className={`ml-4 ${
+            optimisticState.isChecked ? "text-zinc-400" : ""
+          } transition-colors duration-300`}
+        >
+          {optimisticState.title}
         </span>
       )}
       <div
@@ -101,7 +111,7 @@ export default function Item({ item, items, updateItem, deleteItem }: ItemProps)
         {isEditing ? (
           <>
             <button form="edit-title-form" className="ml-4 p-2 text-zinc-400 hover:text-white">
-              {isExecuting ? (
+              {false ? (
                 <Circles width="1em" height="1em" />
               ) : (
                 <CheckIcon className="h-4 w-4 transition-colors duration-300 " aria-hidden />
@@ -122,7 +132,7 @@ export default function Item({ item, items, updateItem, deleteItem }: ItemProps)
             <span className="sr-only">Edit item title</span>
           </button>
         )}
-        <DeleteItemBtn id={item.id} deleteItem={deleteItem} />
+        <DeleteItemBtn id={item.id} deleteItem={deleteItem} setDeleted={() => setDeleted(true)} />
       </div>
       {error && (
         <Toast
@@ -141,16 +151,15 @@ export default function Item({ item, items, updateItem, deleteItem }: ItemProps)
 type DeleteItemBtnProps = {
   id: string;
   deleteItem: typeof deleteItem;
+  setDeleted: () => void;
 };
 
-function DeleteItemBtn({ id, deleteItem }: DeleteItemBtnProps) {
-  const { execute, isExecuting } = useAction(deleteItem);
-
-  // Optimistic "delete".
-  if (isExecuting) return null;
+function DeleteItemBtn({ id, deleteItem, setDeleted }: DeleteItemBtnProps) {
+  const { execute } = useAction(deleteItem);
 
   function executeDelete() {
     void execute({ id });
+    setDeleted();
   }
 
   return (
@@ -162,25 +171,20 @@ function DeleteItemBtn({ id, deleteItem }: DeleteItemBtnProps) {
 }
 
 type ToggleItemCheckProps = {
-  itemId: string;
   isChecked: boolean;
   setError: (msg: string) => void;
-  updateItem: typeof updateItem;
+  toggleCheck: (isChecked: boolean) => void;
+  isExecuting: boolean;
 };
 
-function ToggleItemCheck({ itemId, isChecked, updateItem }: ToggleItemCheckProps) {
-  const { execute, optimisticState } = useOptimisticAction(updateItem, { isChecked });
-
-  function toggleItemCheck(isChecked: boolean) {
-    void execute({ id: itemId, isChecked }, { isChecked });
-  }
-
+function ToggleItemCheck({ isExecuting, toggleCheck, isChecked }: ToggleItemCheckProps) {
   return (
     <Checkbox.Root
-      className="flex h-5 w-5 items-center justify-center rounded transition-colors duration-300 focus:outline-none focus-visible:ring focus-visible:ring-purple-500 focus-visible:ring-opacity-75 radix-state-checked:bg-secondary radix-state-unchecked:bg-zinc-900"
-      defaultChecked={optimisticState.isChecked ?? isChecked}
+      className="flex h-5 w-5 items-center justify-center rounded transition-colors duration-300 focus:outline-none focus-visible:ring focus-visible:ring-purple-500 focus-visible:ring-opacity-75 radix-state-checked:bg-secondary radix-state-unchecked:bg-slate-800"
+      defaultChecked={isChecked}
       checked={isChecked}
-      onCheckedChange={toggleItemCheck}
+      onCheckedChange={toggleCheck}
+      disabled={isExecuting}
     >
       <Checkbox.Indicator>
         <CheckIcon className="h-4 w-4 self-center text-white" />
