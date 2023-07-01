@@ -1,7 +1,8 @@
 import { getItems } from "utils/get";
-import Item from "./Item";
 import NewItemForm from "./NewItemForm";
 import { createItem, deleteItem, updateItem } from "./_actions";
+import ItemsProvider from "./ItemsProvider";
+import Items from "./Items";
 
 type RouteProps = {
   params: { id: string };
@@ -11,21 +12,11 @@ export default async function List({ params }: RouteProps) {
   const items = await getItems(params.id);
 
   return (
-    <>
+    <ItemsProvider items={items}>
       <ul className="divide-y divide-zinc-400/40 px-3 py-2 sm:px-4 lg:px-2">
-        {items.map((item) => {
-          return (
-            <Item
-              item={item}
-              items={items}
-              key={item.id}
-              updateItem={updateItem}
-              deleteItem={deleteItem}
-            />
-          );
-        })}
+        <Items deleteItem={deleteItem} updateItem={updateItem} />
       </ul>
-      <NewItemForm listId={params.id} items={items} createItem={createItem} />
-    </>
+      <NewItemForm listId={params.id} createItem={createItem} />
+    </ItemsProvider>
   );
 }

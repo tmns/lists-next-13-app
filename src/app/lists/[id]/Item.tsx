@@ -5,11 +5,11 @@ import * as Label from "@radix-ui/react-label";
 import { useAction } from "next-safe-action/hook";
 import { useOptimisticAction } from "../../../lib/next-safe-action-hooks";
 import { useEffect, useRef, useState } from "react";
-import { Circles } from "react-loading-icons";
 import Toast from "../Toast";
 import type { deleteItem, updateItem } from "./_actions";
+import { useItemsContext } from "./ItemsProvider";
 
-type Item = { id: string; title: string; listId: string; isChecked: boolean };
+export type Item = { id: string; title: string; listId: string; isChecked: boolean };
 
 type ItemProps = {
   item: Item;
@@ -24,16 +24,12 @@ export default function Item({ item, items, updateItem, deleteItem }: ItemProps)
   const [error, setError] = useState("");
   const { id, title } = item;
   const { execute, isExecuting, optimisticState } = useOptimisticAction(updateItem, item);
-  const [deleted, setDeleted] = useState(false);
 
   useEffect(() => {
     if (!isEditing) return;
 
     editTitleInputRef.current?.select();
   }, [isEditing]);
-
-  // Optimistic delete
-  if (deleted) return null;
 
   function updateTitle(e: React.SyntheticEvent) {
     e.preventDefault();
@@ -111,11 +107,7 @@ export default function Item({ item, items, updateItem, deleteItem }: ItemProps)
         {isEditing ? (
           <>
             <button form="edit-title-form" className="ml-4 p-2 text-zinc-400 hover:text-white">
-              {false ? (
-                <Circles width="1em" height="1em" />
-              ) : (
-                <CheckIcon className="h-4 w-4 transition-colors duration-300 " aria-hidden />
-              )}
+              <CheckIcon className="h-4 w-4 transition-colors duration-300 " aria-hidden />
               <span className="sr-only">Save new title</span>
             </button>
             <button
@@ -132,7 +124,7 @@ export default function Item({ item, items, updateItem, deleteItem }: ItemProps)
             <span className="sr-only">Edit item title</span>
           </button>
         )}
-        <DeleteItemBtn id={item.id} deleteItem={deleteItem} setDeleted={() => setDeleted(true)} />
+        <DeleteItemBtn id={item.id} deleteItem={deleteItem} />
       </div>
       {error && (
         <Toast
@@ -151,15 +143,15 @@ export default function Item({ item, items, updateItem, deleteItem }: ItemProps)
 type DeleteItemBtnProps = {
   id: string;
   deleteItem: typeof deleteItem;
-  setDeleted: () => void;
 };
 
-function DeleteItemBtn({ id, deleteItem, setDeleted }: DeleteItemBtnProps) {
+function DeleteItemBtn({ id, deleteItem }: DeleteItemBtnProps) {
+  const { items, setItems } = useItemsContext();
   const { execute } = useAction(deleteItem);
 
   function executeDelete() {
     void execute({ id });
-    setDeleted();
+    setItems(items.filter((item) => item.id !== id));
   }
 
   return (

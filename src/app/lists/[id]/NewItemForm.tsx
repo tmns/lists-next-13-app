@@ -2,26 +2,25 @@
 import { PlusIcon } from "@heroicons/react/20/solid";
 import * as Label from "@radix-ui/react-label";
 import { useAction } from "next-safe-action/hook";
-import { useRef, useState } from "react";
-import { Circles } from "react-loading-icons";
+import { useEffect, useRef, useState } from "react";
 import Toast from "../Toast";
 import type { createItem } from "./_actions";
+import { useItemsContext } from "./ItemsProvider";
 
 type Item = { id: string; title: string; listId: string; isChecked: boolean };
 
 type NewItemFormProps = {
   listId: string;
-  items: Item[] | undefined;
   createItem: typeof createItem;
 };
 
-export default function NewItemForm({ listId, items, createItem }: NewItemFormProps) {
+export default function NewItemForm({ listId, createItem }: NewItemFormProps) {
+  const { items, setItems } = useItemsContext();
   const [error, setError] = useState("");
   const newItemInputRef = useRef<HTMLInputElement>(null);
+  const { execute, res, reset } = useAction(createItem);
 
-  const { execute, isExecuting } = useAction(createItem);
-
-  async function addNewItem(e: React.SyntheticEvent) {
+  function addNewItem(e: React.SyntheticEvent) {
     e.preventDefault();
 
     setError("");
@@ -40,14 +39,25 @@ export default function NewItemForm({ listId, items, createItem }: NewItemFormPr
       return;
     }
 
-    await execute({ title: newItemTitle, listId });
+    const optItem = { title: newItemTitle, isChecked: false, id: String(Math.random()), listId };
+
+    setItems([...items, optItem]);
+
+    void execute({ title: newItemTitle, listId });
 
     target.reset();
     newItemInputRef.current?.focus();
   }
 
+  useEffect(() => {
+    if (!res.data) return;
+
+    setItems(items.map((item) => (item.title === res.data!.title ? (res.data as Item) : item)));
+    reset();
+  }, [res, items, setItems, reset]);
+
   return (
-    <div className="mt-auto px-5 sm:px-6 py-4 lg:px-4">
+    <div className="mt-auto px-5 py-4 sm:px-6 lg:px-4">
       <form className="flex items-center" onSubmit={addNewItem}>
         <Label.Root htmlFor="title">Add item</Label.Root>
         <input
@@ -59,11 +69,7 @@ export default function NewItemForm({ listId, items, createItem }: NewItemFormPr
           required
         />
         <button className="flex items-center p-2 text-zinc-400 transition-colors duration-300 hover:text-white focus:text-white">
-          {isExecuting ? (
-            <Circles height="1.25em" width="1.25em" />
-          ) : (
-            <PlusIcon className="h-5 w-5 " aria-hidden />
-          )}
+          <PlusIcon className="h-5 w-5 " aria-hidden />
           <span className="sr-only">Add item</span>
         </button>
       </form>
