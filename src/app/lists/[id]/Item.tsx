@@ -3,22 +3,21 @@ import { CheckIcon, PencilIcon, TrashIcon, XMarkIcon } from "@heroicons/react/20
 import * as Checkbox from "@radix-ui/react-checkbox";
 import * as Label from "@radix-ui/react-label";
 import { useAction } from "next-safe-action/hook";
-import { useOptimisticAction } from "../../../lib/next-safe-action-hooks";
 import { useEffect, useRef, useState } from "react";
+import { useOptimisticAction } from "../../../lib/next-safe-action-hooks";
 import Toast from "../Toast";
-import type { deleteItem, updateItem } from "./_actions";
+import type { ProviderItem } from "./ItemsProvider";
 import { useItemsContext } from "./ItemsProvider";
-
-export type Item = { id: string; title: string; listId: string; isChecked: boolean };
+import type { deleteItem, updateItem } from "./_actions";
 
 type ItemProps = {
-  item: Item;
-  items: Item[];
+  item: ProviderItem;
+  items: ProviderItem[];
   updateItem: typeof updateItem;
   deleteItem: typeof deleteItem;
 };
 
-export default function Item({ item, items, updateItem, deleteItem }: ItemProps) {
+export default function ItemComponent({ item, items, updateItem, deleteItem }: ItemProps) {
   const editTitleInputRef = useRef<HTMLInputElement>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [error, setError] = useState("");

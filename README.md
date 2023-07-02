@@ -1,5 +1,7 @@
 # Just Lists
 
-Literally, [just lists](https://lists-next-13-app.vercel.app/).
+Literally, justs lists.
 
-Small app for experimenting with Next 13 app dir. Changes can come at any time!
+Okay.. and notes (I couldn't help myself) 😅
+
+Small app for experimenting with NextJS app dir, actions, etc. Changes can come at any time!

@@ -1,11 +1,12 @@
 "use client";
 import { PlusIcon, XMarkIcon } from "@heroicons/react/20/solid";
+import type { List } from "@prisma/client";
 import * as Label from "@radix-ui/react-label";
 import { useAction } from "next-safe-action/hook";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import Toast from "../Toast";
-import type { List } from "./List";
+import type { ProviderList } from "./ListsProvider";
 import { useListsContext } from "./ListsProvider";
 import type { createList } from "./_actions";
 
@@ -45,7 +46,11 @@ export default function NewListForm({ createList }: NewListFormProps) {
 
     formRef.current!.reset();
 
-    const optList: List = { name: newListName, id: String(Math.random()), isLoading: true };
+    const optList: ProviderList = {
+      name: newListName,
+      id: String(Math.random()),
+      isLoading: true,
+    };
 
     setLists([...lists, optList]);
     setIsCreating(false);

@@ -46,5 +46,6 @@ module.exports = {
     require("@savvywombat/tailwindcss-grid-areas"),
     require("tailwindcss-radix"),
     require("@tailwindcss/forms"),
+    require("@tailwindcss/typography"),
   ],
 };

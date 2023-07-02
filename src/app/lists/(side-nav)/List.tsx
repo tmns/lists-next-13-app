@@ -13,18 +13,17 @@ import { useSelectedLayoutSegment } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import Toast from "../Toast";
 import DeleteOption from "./DeleteOption";
+import type { ProviderList } from "./ListsProvider";
 import type { deleteList, updateList } from "./_actions";
 
-export type List = { id: string; name: string; isLoading?: boolean };
-
 type ListProps = {
-  lists: List[] | undefined;
-  list: List;
+  lists: ProviderList[] | undefined;
+  list: ProviderList;
   deleteList: typeof deleteList;
   updateList: typeof updateList;
 };
 
-export default function List({ lists, list, deleteList, updateList }: ListProps) {
+export default function ListComponent({ lists, list, deleteList, updateList }: ListProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [error, setError] = useState("");
   const editNameInputRef = useRef<HTMLInputElement>(null);

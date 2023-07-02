@@ -1,7 +1,7 @@
 "use client";
 import Item from "./Item";
 import { useItemsContext } from "./ItemsProvider";
-import type { updateItem, deleteItem } from "./_actions";
+import type { deleteItem, updateItem } from "./_actions";
 
 type ItemsProps = {
   updateItem: typeof updateItem;

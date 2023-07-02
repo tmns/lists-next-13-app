@@ -38,6 +38,7 @@ model Account {
   user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+  @@index([userId])
 }
 
 model Session {
@@ -46,6 +47,8 @@ model Session {
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model User {
@@ -57,6 +60,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   List          List[]
+  Note          Note[]
 }
 
 model VerificationToken {
@@ -73,6 +77,8 @@ model List {
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   items  Item[]
+
+  @@index([userId])
 }
 
 model Item {
@@ -83,4 +89,16 @@ model Item {
   isChecked Boolean @default(false)
 
   @@unique([title, listId])
+  @@index([listId])
+}
+
+model Note {
+  id         String @id @default(cuid())
+  userId     String
+  instanceId String
+  user       User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content    String @db.Text
+  updatedAt  String
+
+  @@index([userId])
 }

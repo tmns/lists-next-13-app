@@ -2,10 +2,10 @@ import { getServerSession } from "next-auth/next";
 import { redirect } from "next/navigation";
 import { authOptions } from "pages/api/auth/[...nextauth]";
 import { getLists } from "utils/get";
-import Lists from "./Lists";
-import ListsProvider from "./ListsProvider";
-import NewListForm from "./NewListForm";
-import { createList, deleteList, updateList } from "./_actions";
+import Lists from "../lists/(side-nav)/Lists";
+import ListsProvider from "../lists/(side-nav)/ListsProvider";
+import NewListForm from "../lists/(side-nav)/NewListForm";
+import { createList, deleteList, updateList } from "../lists/(side-nav)/_actions";
 
 interface SideNavProps {
   isMobile?: boolean;

@@ -1,17 +1,19 @@
 "use client";
+import type { List } from "@prisma/client";
 import type { Dispatch, SetStateAction } from "react";
 import { createContext, useContext, useState } from "react";
-import type { List } from "./List";
+
+export type ProviderList = Omit<List, "userId"> & { userId?: string; isLoading?: boolean };
 
 const ListsContext = createContext(
   {} as {
-    lists: List[];
-    setLists: Dispatch<SetStateAction<List[]>>;
+    lists: ProviderList[];
+    setLists: Dispatch<SetStateAction<ProviderList[]>>;
   }
 );
 
 interface ProviderProps {
-  lists: List[];
+  lists: ProviderList[];
   children: JSX.Element[];
 }
 

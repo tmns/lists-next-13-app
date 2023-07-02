@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth/next";
 import { Suspense } from "react";
 import { authOptions } from "server/auth";
-import UserMenu from "./UserMenu";
+import UserMenu from "../lists/UserMenu";
 
 async function Header() {
   const session = await getServerSession(authOptions);

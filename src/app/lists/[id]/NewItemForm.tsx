@@ -4,10 +4,9 @@ import * as Label from "@radix-ui/react-label";
 import { useAction } from "next-safe-action/hook";
 import { useEffect, useRef, useState } from "react";
 import Toast from "../Toast";
-import type { createItem } from "./_actions";
+import type { ProviderItem } from "./ItemsProvider";
 import { useItemsContext } from "./ItemsProvider";
-
-type Item = { id: string; title: string; listId: string; isChecked: boolean };
+import type { createItem } from "./_actions";
 
 type NewItemFormProps = {
   listId: string;
@@ -52,7 +51,9 @@ export default function NewItemForm({ listId, createItem }: NewItemFormProps) {
   useEffect(() => {
     if (!res.data) return;
 
-    setItems(items.map((item) => (item.title === res.data!.title ? (res.data as Item) : item)));
+    setItems(
+      items.map((item) => (item.title === res.data!.title ? (res.data as ProviderItem) : item))
+    );
     reset();
   }, [res, items, setItems, reset]);
 

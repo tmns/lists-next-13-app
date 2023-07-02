@@ -17,10 +17,7 @@ export const createItem = action(
     }
 
     const newItem = await prisma.item.create({
-      data: {
-        listId,
-        title,
-      },
+      data: { listId, title },
     });
 
     revalidatePath(`/lists/${listId}`);
@@ -48,10 +45,7 @@ export const updateItem = action(
       throw new Error("You are not authorized to access that data.");
     }
 
-    const updatedItem = await prisma.item.update({
-      data: { title, isChecked },
-      where: { id },
-    });
+    const updatedItem = await prisma.item.update({ data: { title, isChecked }, where: { id } });
 
     revalidatePath(`/lists/${list.id}`);
 

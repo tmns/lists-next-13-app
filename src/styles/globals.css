@@ -1,3 +1,14 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+  .ProseMirror p.is-empty.focused::before,
+  .ProseMirror .is-empty:not(p)::before {
+    color: #515d69b3;
+    content: attr(data-placeholder);
+    float: left;
+    height: 0;
+    pointer-events: none;
+  }
+}

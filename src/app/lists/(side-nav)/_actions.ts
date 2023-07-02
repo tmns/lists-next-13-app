@@ -9,10 +9,7 @@ export const createList = action(
   { input: createListInput, withAuth: true },
   async ({ name }, session) => {
     const newList = await prisma.list.create({
-      data: {
-        name,
-        userId: session.user.id,
-      },
+      data: { name, userId: session.user.id },
       select: { id: true, name: true },
     });
 
