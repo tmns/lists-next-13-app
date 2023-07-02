@@ -4,34 +4,37 @@ import * as Label from "@radix-ui/react-label";
 import { useAction } from "next-safe-action/hook";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { Circles } from "react-loading-icons";
 import Toast from "../Toast";
+import type { List } from "./List";
+import { useListsContext } from "./ListsProvider";
 import type { createList } from "./_actions";
 
-type List = { id: string; name: string };
-
 type NewListFormProps = {
-  lists: List[] | undefined;
   createList: typeof createList;
 };
 
-export default function NewListForm({ lists, createList }: NewListFormProps) {
+export default function NewListForm({ createList }: NewListFormProps) {
+  const { lists, setLists } = useListsContext();
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState("");
   const newListInputRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const router = useRouter();
-  const { execute, isExecuting } = useAction(createList, {
-    onSuccess: (data) => {
-      setIsCreating(false);
-      router.push(`/lists/${data.id}`);
-    },
+  const { execute, res, reset } = useAction(createList, {
+    onSuccess: (data) => router.push(`/lists/${data.id}`),
   });
 
-  function addList(formData: FormData) {
-    const newListName = formData.get("listName") as string;
+  function addList(e: React.SyntheticEvent) {
+    e.preventDefault();
 
-    if (!newListName) return;
+    setError("");
+
+    const target = e.target as typeof e.target & {
+      name: { value: string };
+      reset: () => void;
+    };
+
+    const newListName = target.name.value;
 
     if (lists?.some((list) => list.name === newListName)) {
       setError(
@@ -42,8 +45,20 @@ export default function NewListForm({ lists, createList }: NewListFormProps) {
 
     formRef.current!.reset();
 
+    const optList: List = { name: newListName, id: String(Math.random()), isLoading: true };
+
+    setLists([...lists, optList]);
+    setIsCreating(false);
+
     void execute({ name: newListName });
   }
+
+  useEffect(() => {
+    if (!res.data) return;
+
+    setLists(lists.map((list) => (list.name === res.data!.name ? (res.data as List) : list)));
+    reset();
+  }, [res, lists, setLists, reset]);
 
   useEffect(() => {
     if (!isCreating) return;
@@ -66,24 +81,20 @@ export default function NewListForm({ lists, createList }: NewListFormProps) {
             <XMarkIcon className="h-5 w-5 transition-colors duration-300" aria-hidden />
             <span className="sr-only">Cancel adding list</span>
           </button>
-          <form className="p-4 pl-1 pr-0" action={addList} ref={formRef}>
-            <Label.Root htmlFor="listName">List name</Label.Root>
+          <form className="p-4 pl-1 pr-0" onSubmit={addList} ref={formRef}>
+            <Label.Root htmlFor="name">List name</Label.Root>
             <div className="mt-1 flex justify-between">
               <input
                 className="w-44 rounded-sm border border-l-0 border-r-0 border-t-0 border-zinc-400 bg-transparent px-2"
                 ref={newListInputRef}
                 onKeyUp={closeOnEsc}
                 type="text"
-                id="listName"
-                name="listName"
+                id="name"
+                name="name"
                 required
               />
               <button className="-m-2 mr-0 p-2 transition-colors duration-300 hover:text-white">
-                {isExecuting ? (
-                  <Circles height="1em" width="1.25em" fill="currentColor" />
-                ) : (
-                  <PlusIcon className="h-5 w-5" aria-hidden />
-                )}
+                <PlusIcon className="h-5 w-5" aria-hidden />
                 <span className="sr-only">Add list</span>
               </button>
             </div>

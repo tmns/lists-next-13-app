@@ -7,16 +7,15 @@ import {
 } from "@heroicons/react/20/solid";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Label from "@radix-ui/react-label";
-import { useAction } from "next-safe-action/hook";
+import { useOptimisticAction } from "lib/next-safe-action-hooks";
 import Link from "next/link";
 import { useSelectedLayoutSegment } from "next/navigation";
-import { startTransition, useEffect, useRef, useState } from "react";
-import { Circles } from "react-loading-icons";
+import { useEffect, useRef, useState } from "react";
 import Toast from "../Toast";
 import DeleteOption from "./DeleteOption";
 import type { deleteList, updateList } from "./_actions";
 
-type List = { id: string; name: string };
+export type List = { id: string; name: string; isLoading?: boolean };
 
 type ListProps = {
   lists: List[] | undefined;
@@ -30,11 +29,7 @@ export default function List({ lists, list, deleteList, updateList }: ListProps)
   const [error, setError] = useState("");
   const editNameInputRef = useRef<HTMLInputElement>(null);
   const currentListId = useSelectedLayoutSegment();
-  const { execute, isExecuting } = useAction(updateList, {
-    onSuccess: () => {
-      startTransition(() => setIsEditing(false));
-    },
-  });
+  const { execute, optimisticState } = useOptimisticAction(updateList, list);
 
   useEffect(() => {
     if (!isEditing) return;
@@ -58,7 +53,8 @@ export default function List({ lists, list, deleteList, updateList }: ListProps)
       return;
     }
 
-    void execute({ id: list.id, name });
+    void execute({ id: list.id, name }, { name });
+    setIsEditing(false);
   }
 
   function closeOnEsc(e: React.KeyboardEvent) {
@@ -68,10 +64,10 @@ export default function List({ lists, list, deleteList, updateList }: ListProps)
   return (
     <li
       className={`group/item flex cursor-pointer items-center justify-between rounded-sm text-left text-sm font-semibold leading-6 ${
-        currentListId === list.id
+        currentListId === list.id || list.isLoading
           ? "bg-secondary-bg text-white"
           : "text-gray-400 transition-colors duration-300 hover:bg-secondary-bg hover:text-white"
-      }`}
+      } ${list.isLoading ? "pointer-events-none animate-pulse" : ""}`}
     >
       {isEditing ? (
         <form className="flex w-full pl-2" onSubmit={updateName}>
@@ -87,11 +83,7 @@ export default function List({ lists, list, deleteList, updateList }: ListProps)
             defaultValue={list.name}
           />
           <button className="ml-4 p-2 text-zinc-400 hover:text-white">
-            {isExecuting ? (
-              <Circles height="1em" width="1em" />
-            ) : (
-              <CheckIcon className="h-4 w-4 transition-colors duration-300" aria-hidden />
-            )}
+            <CheckIcon className="h-4 w-4 transition-colors duration-300" aria-hidden />
             <span className="sr-only">Save new title</span>
           </button>
           <button
@@ -108,7 +100,7 @@ export default function List({ lists, list, deleteList, updateList }: ListProps)
             href={`/lists/${list.id}`}
             className="flex w-full items-center justify-between px-4 py-1"
           >
-            <span className="truncate">{list.name}</span>
+            <span className="truncate">{optimisticState.name}</span>
             <DropdownMenu.Trigger className="flex h-4 place-items-center rounded-sm opacity-0 transition-colors duration-300 hover:bg-gray-800 hover:text-white group-focus-within/item:opacity-100 group-hover/item:opacity-100">
               <EllipsisHorizontalIcon className="h-6 w-6" aria-hidden />
               <span className="sr-only">Options</span>
