@@ -7,7 +7,7 @@ import {
 } from "@heroicons/react/20/solid";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Label from "@radix-ui/react-label";
-import { useOptimisticAction } from "lib/next-safe-action-hooks";
+import { useOptimisticAction } from "next-safe-action/hook";
 import Link from "next/link";
 import { useSelectedLayoutSegment } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -28,7 +28,7 @@ export default function ListComponent({ lists, list, deleteList, updateList }: L
   const [error, setError] = useState("");
   const editNameInputRef = useRef<HTMLInputElement>(null);
   const currentListId = useSelectedLayoutSegment();
-  const { execute, optimisticState } = useOptimisticAction(updateList, list);
+  const { execute, optimisticData } = useOptimisticAction(updateList, list);
 
   useEffect(() => {
     if (!isEditing) return;
@@ -99,7 +99,7 @@ export default function ListComponent({ lists, list, deleteList, updateList }: L
             href={`/lists/${list.id}`}
             className="flex w-full items-center justify-between px-4 py-1"
           >
-            <span className="truncate">{optimisticState.name}</span>
+            <span className="truncate">{optimisticData.name}</span>
             <DropdownMenu.Trigger className="flex h-4 place-items-center rounded-sm opacity-0 transition-colors duration-300 hover:bg-gray-800 hover:text-white group-focus-within/item:opacity-100 group-hover/item:opacity-100">
               <EllipsisHorizontalIcon className="h-6 w-6" aria-hidden />
               <span className="sr-only">Options</span>

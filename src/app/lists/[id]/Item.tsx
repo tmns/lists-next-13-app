@@ -2,9 +2,8 @@
 import { CheckIcon, PencilIcon, TrashIcon, XMarkIcon } from "@heroicons/react/20/solid";
 import * as Checkbox from "@radix-ui/react-checkbox";
 import * as Label from "@radix-ui/react-label";
-import { useAction } from "next-safe-action/hook";
+import { useAction, useOptimisticAction } from "next-safe-action/hook";
 import { useEffect, useRef, useState } from "react";
-import { useOptimisticAction } from "../../../lib/next-safe-action-hooks";
 import Toast from "../Toast";
 import type { ProviderItem } from "./ItemsProvider";
 import { useItemsContext } from "./ItemsProvider";
@@ -22,7 +21,7 @@ export default function ItemComponent({ item, items, updateItem, deleteItem }: I
   const [isEditing, setIsEditing] = useState(false);
   const [error, setError] = useState("");
   const { id, title } = item;
-  const { execute, isExecuting, optimisticState } = useOptimisticAction(updateItem, item);
+  const { execute, isExecuting, optimisticData } = useOptimisticAction(updateItem, item);
 
   useEffect(() => {
     if (!isEditing) return;
@@ -67,7 +66,7 @@ export default function ItemComponent({ item, items, updateItem, deleteItem }: I
   return (
     <li className="group flex items-center p-2">
       <ToggleItemCheck
-        isChecked={optimisticState.isChecked}
+        isChecked={optimisticData.isChecked}
         setError={setError}
         toggleCheck={toggleCheck}
         isExecuting={isExecuting}
@@ -92,10 +91,10 @@ export default function ItemComponent({ item, items, updateItem, deleteItem }: I
       ) : (
         <span
           className={`ml-4 ${
-            optimisticState.isChecked ? "text-zinc-400" : ""
+            optimisticData.isChecked ? "text-zinc-400" : ""
           } transition-colors duration-300`}
         >
-          {optimisticState.title}
+          {optimisticData.title}
         </span>
       )}
       <div

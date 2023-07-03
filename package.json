@@ -29,7 +29,7 @@
     "nanoid": "^4.0.2",
     "next": "^13.4.7",
     "next-auth": "^4.22.1",
-    "next-safe-action": "^2.6.8",
+    "next-safe-action": "^2.6.9",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-loading-icons": "^1.1.0",
