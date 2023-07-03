@@ -1,5 +1,12 @@
 "use client";
-import { CheckIcon, PencilIcon, TrashIcon, XMarkIcon } from "@heroicons/react/20/solid";
+import {
+  CheckIcon,
+  PencilIcon,
+  TrashIcon,
+  XMarkIcon,
+  ClipboardDocumentIcon,
+  ClipboardDocumentCheckIcon,
+} from "@heroicons/react/20/solid";
 import * as Checkbox from "@radix-ui/react-checkbox";
 import * as Label from "@radix-ui/react-label";
 import { useAction, useOptimisticAction } from "next-safe-action/hook";
@@ -19,6 +26,7 @@ type ItemProps = {
 export default function ItemComponent({ item, items, updateItem, deleteItem }: ItemProps) {
   const editTitleInputRef = useRef<HTMLInputElement>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [titleCopied, setTitleCopied] = useState(false);
   const [error, setError] = useState("");
   const { id, title } = item;
   const { execute, isExecuting, optimisticData } = useOptimisticAction(updateItem, item);
@@ -61,6 +69,12 @@ export default function ItemComponent({ item, items, updateItem, deleteItem }: I
 
   function closeOnEsc(e: React.KeyboardEvent) {
     if (e.key === "Escape") setIsEditing(false);
+  }
+
+  async function copyTitle() {
+    await navigator.clipboard.writeText(item.title);
+    setTitleCopied(true);
+    setTimeout(() => setTitleCopied(false), 500);
   }
 
   return (
@@ -117,10 +131,26 @@ export default function ItemComponent({ item, items, updateItem, deleteItem }: I
             </button>
           </>
         ) : (
-          <button className="p-2 text-zinc-400 hover:text-white" onClick={showEditTitleInput}>
-            <PencilIcon className="h-4 w-4 transition-colors duration-300 " aria-hidden />
-            <span className="sr-only">Edit item title</span>
-          </button>
+          <>
+            <button className="p-2 text-zinc-400 hover:text-white" onClick={copyTitle}>
+              {titleCopied ? (
+                <ClipboardDocumentCheckIcon
+                  className="h-4 w-4 transition-colors duration-300 "
+                  aria-hidden
+                />
+              ) : (
+                <ClipboardDocumentIcon
+                  className="h-4 w-4 transition-colors duration-300 "
+                  aria-hidden
+                />
+              )}
+              <span className="sr-only">Copy item title</span>
+            </button>
+            <button className="p-2 text-zinc-400 hover:text-white" onClick={showEditTitleInput}>
+              <PencilIcon className="h-4 w-4 transition-colors duration-300 " aria-hidden />
+              <span className="sr-only">Edit item title</span>
+            </button>
+          </>
         )}
         <DeleteItemBtn id={item.id} deleteItem={deleteItem} />
       </div>
