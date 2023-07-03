@@ -100,7 +100,7 @@ export default function ListComponent({ lists, list, deleteList, updateList }: L
             className="flex w-full items-center justify-between px-4 py-1"
           >
             <span className="truncate">{optimisticData.name}</span>
-            <DropdownMenu.Trigger className="flex h-4 place-items-center rounded-sm opacity-0 transition-colors duration-300 hover:bg-gray-800 hover:text-white group-focus-within/item:opacity-100 group-hover/item:opacity-100">
+            <DropdownMenu.Trigger className="flex h-4 place-items-center rounded-sm transition-colors duration-300 hover:bg-gray-800 hover:text-white group-focus-within/item:opacity-100 group-hover/item:opacity-100 supports-hover:opacity-0">
               <EllipsisHorizontalIcon className="h-6 w-6" aria-hidden />
               <span className="sr-only">Options</span>
             </DropdownMenu.Trigger>

@@ -104,7 +104,7 @@ export default function ItemComponent({ item, items, updateItem, deleteItem }: I
         </>
       ) : (
         <span
-          className={`ml-4 ${
+          className={`ml-4 truncate text-ellipsis ${
             optimisticData.isChecked ? "text-zinc-400" : ""
           } transition-colors duration-300`}
         >
@@ -113,7 +113,7 @@ export default function ItemComponent({ item, items, updateItem, deleteItem }: I
       )}
       <div
         className={`${
-          isEditing ? "opacity-100" : "opacity-0"
+          isEditing ? "opacity-100" : "supports-hover:opacity-0"
         } ml-auto flex items-center focus-within:opacity-100 group-hover:opacity-100`}
       >
         {isEditing ? (
@@ -200,7 +200,7 @@ type ToggleItemCheckProps = {
 function ToggleItemCheck({ isExecuting, toggleCheck, isChecked }: ToggleItemCheckProps) {
   return (
     <Checkbox.Root
-      className="flex h-5 w-5 items-center justify-center rounded transition-colors duration-300 focus:outline-none focus-visible:ring focus-visible:ring-purple-500 focus-visible:ring-opacity-75 radix-state-checked:bg-secondary radix-state-unchecked:bg-slate-800"
+      className="flex h-5 w-5 shrink-0 basis-5 items-center justify-center rounded transition-colors duration-300 focus:outline-none focus-visible:ring focus-visible:ring-purple-500 focus-visible:ring-opacity-75 radix-state-checked:bg-secondary radix-state-unchecked:bg-slate-800"
       defaultChecked={isChecked}
       checked={isChecked}
       onCheckedChange={toggleCheck}
