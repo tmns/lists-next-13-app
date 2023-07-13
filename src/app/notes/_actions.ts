@@ -1,6 +1,7 @@
 "use server";
 import type { Note } from "@prisma/client";
 import { action } from "lib/safe-action";
+import { revalidatePath } from "next/cache";
 import { prisma } from "server/db";
 import { z } from "zod";
 
@@ -30,6 +31,8 @@ export const updateNote = action(
     const bc = new BroadcastChannel(`notes/${note.userId}`);
     bc.postMessage({ note: updatedNote });
     setTimeout(() => bc.close(), 5);
+
+    revalidatePath("/notes");
 
     return updatedNote;
   }

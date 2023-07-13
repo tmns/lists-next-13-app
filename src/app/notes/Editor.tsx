@@ -60,6 +60,9 @@ export default function EditorComponent({ note }: EditorProps) {
     onUpdate({ editor }) {
       sendUpdatedContent(editor as Editor, note.id, instanceId);
     },
+    onCreate({ editor }) {
+      editor.commands.focus();
+    },
   });
 
   useEffect(() => {
