@@ -17,7 +17,7 @@ export default function UserMenu({ user }: UserProps) {
 
   return (
     <DropdownMenu.Root>
-      <DropdownMenu.Trigger className="-m-1.5 mr-2 flex items-center p-1.5">
+      <DropdownMenu.Trigger className="-m-1.5 flex items-center p-1.5">
         <span className="sr-only">Open user menu</span>
         <Image
           className="h-8 w-8 rounded-full bg-gray-50"

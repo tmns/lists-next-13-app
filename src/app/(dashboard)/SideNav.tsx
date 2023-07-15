@@ -24,7 +24,7 @@ export default async function SideNav(props: SideNavProps) {
       className={
         isMobile
           ? "fixed inset-y-0 z-50 flex w-72 flex-col"
-          : "hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col"
+          : "shadow-subtle-r hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col"
       }
     >
       <div className="flex grow flex-col overflow-y-auto bg-default-bg px-6 pb-4">

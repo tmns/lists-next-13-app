@@ -7,7 +7,7 @@ async function Header() {
   const session = await getServerSession(authOptions);
 
   return (
-    <header className="flex items-center justify-end p-4 shadow-subtle-b">
+    <header className="mx-2 flex items-center justify-end p-4 shadow-subtle-b">
       <Suspense>
         <UserMenu user={session!.user} />
       </Suspense>
