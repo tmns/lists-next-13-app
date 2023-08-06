@@ -1,21 +1,16 @@
 import { TrashIcon } from "@heroicons/react/20/solid";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { useAction } from "next-safe-action/hook";
-import { useListsContext } from "./ListsProvider";
-import type { deleteList } from "./_actions";
+import { useDeleteList } from "utils/queries/lists";
 
 type DeleteOptionProps = {
   listId: string;
-  deleteList: typeof deleteList;
 };
 
-export default function DeleteOption({ listId, deleteList }: DeleteOptionProps) {
-  const { lists, setLists } = useListsContext();
-  const { execute } = useAction(deleteList);
+export default function DeleteOption({ listId }: DeleteOptionProps) {
+  const { mutate } = useDeleteList();
 
   function executeDelete() {
-    void execute({ id: listId });
-    setLists(lists.filter((list) => list.id !== listId));
+    mutate({ id: listId });
   }
 
   return (

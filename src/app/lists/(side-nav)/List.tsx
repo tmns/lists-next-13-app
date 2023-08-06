@@ -7,28 +7,27 @@ import {
 } from "@heroicons/react/20/solid";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Label from "@radix-ui/react-label";
-import { useOptimisticAction } from "next-safe-action/hook";
 import Link from "next/link";
 import { useSelectedLayoutSegment } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import Toast from "../Toast";
 import DeleteOption from "./DeleteOption";
-import type { ProviderList } from "./ListsProvider";
-import type { deleteList, updateList } from "./_actions";
+import { useUpdateList } from "utils/queries/lists";
+import type { List } from "@prisma/client";
+
+type OptimisticList = List & { isLoading?: boolean };
 
 type ListProps = {
-  lists: ProviderList[] | undefined;
-  list: ProviderList;
-  deleteList: typeof deleteList;
-  updateList: typeof updateList;
+  lists: OptimisticList[];
+  list: OptimisticList;
 };
 
-export default function ListComponent({ lists, list, deleteList, updateList }: ListProps) {
+export default function ListComponent({ lists, list }: ListProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [error, setError] = useState("");
   const editNameInputRef = useRef<HTMLInputElement>(null);
   const currentListId = useSelectedLayoutSegment();
-  const { execute, optimisticData } = useOptimisticAction(updateList, list);
+  const { mutate } = useUpdateList();
 
   useEffect(() => {
     if (!isEditing) return;
@@ -52,7 +51,8 @@ export default function ListComponent({ lists, list, deleteList, updateList }: L
       return;
     }
 
-    void execute({ id: list.id, name }, { name });
+    mutate({ id: list.id, name });
+
     setIsEditing(false);
   }
 
@@ -99,7 +99,7 @@ export default function ListComponent({ lists, list, deleteList, updateList }: L
             href={`/lists/${list.id}`}
             className="flex w-full items-center justify-between px-4 py-1"
           >
-            <span className="truncate">{optimisticData.name}</span>
+            <span className="truncate">{list.name}</span>
             <DropdownMenu.Trigger className="flex h-4 place-items-center rounded-sm transition-colors duration-300 hover:bg-gray-800 hover:text-white group-focus-within/item:opacity-100 group-hover/item:opacity-100 supports-hover:opacity-0">
               <EllipsisHorizontalIcon className="h-6 w-6" aria-hidden />
               <span className="sr-only">Options</span>
@@ -115,7 +115,7 @@ export default function ListComponent({ lists, list, deleteList, updateList }: L
               alignOffset={5}
               className="shadow- z-50 w-56 rounded-md bg-gray-900 p-2 text-sm text-white ring-1 ring-black ring-opacity-5 drop-shadow-xl focus:outline-none radix-state-open:animate-slide-up-fade"
             >
-              <DeleteOption listId={list.id} deleteList={deleteList} />
+              <DeleteOption listId={list.id} />
               <DropdownMenu.Item
                 className="flex w-full items-center gap-4 rounded-sm p-2 transition-colors duration-300 hover:bg-gray-800"
                 onClick={() => setIsEditing(true)}

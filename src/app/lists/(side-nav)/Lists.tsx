@@ -1,17 +1,14 @@
 "use client";
+import { useGetLists } from "utils/queries/lists";
 import List from "./List";
-import { useListsContext } from "./ListsProvider";
-import type { deleteList, updateList } from "./_actions";
+import type { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/headers";
 
 type ListsProps = {
-  deleteList: typeof deleteList;
-  updateList: typeof updateList;
+  headers: ReadonlyHeaders;
 };
 
-export default function Lists({ deleteList, updateList }: ListsProps) {
-  const { lists } = useListsContext();
+export default function Lists({ headers }: ListsProps) {
+  const [lists] = useGetLists(headers);
 
-  return lists.map((list) => (
-    <List key={list.id} lists={lists} list={list} deleteList={deleteList} updateList={updateList} />
-  ));
+  return lists?.map((list) => <List key={list.id} lists={lists} list={list} />);
 }

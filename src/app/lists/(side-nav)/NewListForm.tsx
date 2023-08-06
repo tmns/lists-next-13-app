@@ -1,29 +1,22 @@
 "use client";
 import { PlusIcon, XMarkIcon } from "@heroicons/react/20/solid";
-import type { List } from "@prisma/client";
 import * as Label from "@radix-ui/react-label";
-import { useAction } from "next-safe-action/hook";
-import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import Toast from "../Toast";
-import type { ProviderList } from "./ListsProvider";
-import { useListsContext } from "./ListsProvider";
-import type { createList } from "./_actions";
+import { useCreateList, useGetLists } from "utils/queries/lists";
+import type { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/headers";
 
 type NewListFormProps = {
-  createList: typeof createList;
+  headers: ReadonlyHeaders;
 };
 
-export default function NewListForm({ createList }: NewListFormProps) {
-  const { lists, setLists } = useListsContext();
+export default function NewListForm({ headers }: NewListFormProps) {
+  const [lists] = useGetLists(headers);
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState("");
   const newListInputRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
-  const router = useRouter();
-  const { execute, res, reset } = useAction(createList, {
-    onSuccess: (data) => router.push(`/lists/${data.id}`),
-  });
+  const { mutate } = useCreateList();
 
   function addList(e: React.SyntheticEvent) {
     e.preventDefault();
@@ -39,31 +32,17 @@ export default function NewListForm({ createList }: NewListFormProps) {
 
     if (lists?.some((list) => list.name === newListName)) {
       setError(
-        `You already have a list with the name "${newListName}". Please choose another name.`
+        `You already have a list with the name "${newListName}". Please choose another name.`,
       );
       return;
     }
 
     formRef.current!.reset();
 
-    const optList: ProviderList = {
-      name: newListName,
-      id: String(Math.random()),
-      isLoading: true,
-    };
-
-    setLists([...lists, optList]);
     setIsCreating(false);
 
-    void execute({ name: newListName });
+    void mutate({ name: newListName });
   }
-
-  useEffect(() => {
-    if (!res.data) return;
-
-    setLists(lists.map((list) => (list.name === res.data!.name ? (res.data as List) : list)));
-    reset();
-  }, [res, lists, setLists, reset]);
 
   useEffect(() => {
     if (!isCreating) return;
