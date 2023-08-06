@@ -23,8 +23,7 @@ export function useGetLists(headers: ReadonlyHeaders) {
           cache: "no-store",
         });
         const lists = (await res.json()) as List[];
-        const sortedLists = lists.sort((a, b) => a.createdAt?.localeCompare(b.createdAt));
-        return sortedLists;
+        return lists;
       } catch (e) {
         console.log({ e });
       }

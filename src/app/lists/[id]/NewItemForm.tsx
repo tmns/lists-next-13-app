@@ -1,23 +1,21 @@
 "use client";
 import { PlusIcon } from "@heroicons/react/20/solid";
 import * as Label from "@radix-ui/react-label";
-import { useAction } from "next-safe-action/hook";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import Toast from "../Toast";
-import type { ProviderItem } from "./ItemsProvider";
-import { useItemsContext } from "./ItemsProvider";
-import type { createItem } from "./_actions";
+import { useCreateItem, useGetItems } from "utils/queries/items";
+import type { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/headers";
 
 type NewItemFormProps = {
   listId: string;
-  createItem: typeof createItem;
+  headers: ReadonlyHeaders;
 };
 
-export default function NewItemForm({ listId, createItem }: NewItemFormProps) {
-  const { items, setItems } = useItemsContext();
+export default function NewItemForm({ listId, headers }: NewItemFormProps) {
+  const [items] = useGetItems(listId, headers);
   const [error, setError] = useState("");
   const newItemInputRef = useRef<HTMLInputElement>(null);
-  const { execute, res, reset } = useAction(createItem);
+  const { mutate } = useCreateItem(listId);
 
   function addNewItem(e: React.SyntheticEvent) {
     e.preventDefault();
@@ -33,29 +31,16 @@ export default function NewItemForm({ listId, createItem }: NewItemFormProps) {
 
     if (items?.some((item) => item.title === newItemTitle)) {
       setError(
-        `You already have an item with the title "${newItemTitle}". Please choose another name.`
+        `You already have an item with the title "${newItemTitle}". Please choose another name.`,
       );
       return;
     }
 
-    const optItem = { title: newItemTitle, isChecked: false, id: String(Math.random()), listId };
-
-    setItems([...items, optItem]);
-
-    void execute({ title: newItemTitle, listId });
+    mutate({ title: newItemTitle, listId });
 
     target.reset();
     newItemInputRef.current?.focus();
   }
-
-  useEffect(() => {
-    if (!res.data) return;
-
-    setItems(
-      items.map((item) => (item.title === res.data!.title ? (res.data as ProviderItem) : item))
-    );
-    reset();
-  }, [res, items, setItems, reset]);
 
   return (
     <div className="mt-auto px-5 py-4 sm:px-6 lg:px-4">

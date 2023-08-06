@@ -13,7 +13,9 @@ export async function GET() {
 
   const lists = await getLists(session.user.id);
 
-  return NextResponse.json(lists);
+  const sortedLists = lists.sort((a: List, b: List) => a.createdAt?.localeCompare(b.createdAt));
+
+  return NextResponse.json(sortedLists);
 }
 
 export async function POST(request: NextRequest) {

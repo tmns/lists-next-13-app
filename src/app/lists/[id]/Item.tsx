@@ -9,27 +9,25 @@ import {
 } from "@heroicons/react/20/solid";
 import * as Checkbox from "@radix-ui/react-checkbox";
 import * as Label from "@radix-ui/react-label";
-import { useAction, useOptimisticAction } from "next-safe-action/hook";
 import { useEffect, useRef, useState } from "react";
 import Toast from "../Toast";
-import type { ProviderItem } from "./ItemsProvider";
-import { useItemsContext } from "./ItemsProvider";
-import type { deleteItem, updateItem } from "./_actions";
+import { useDeleteItem, useUpdateItem } from "utils/queries/items";
+import type { Item } from "@prisma/client";
+
+type OptimisticItem = Item & { isLoading?: boolean };
 
 type ItemProps = {
-  item: ProviderItem;
-  items: ProviderItem[];
-  updateItem: typeof updateItem;
-  deleteItem: typeof deleteItem;
+  item: OptimisticItem;
+  items: OptimisticItem[];
+  listId: string;
 };
 
-export default function ItemComponent({ item, items, updateItem, deleteItem }: ItemProps) {
+export default function ItemComponent({ item, items, listId }: ItemProps) {
   const editTitleInputRef = useRef<HTMLInputElement>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [titleCopied, setTitleCopied] = useState(false);
   const [error, setError] = useState("");
-  const { id, title } = item;
-  const { execute, isExecuting, optimisticData } = useOptimisticAction(updateItem, item);
+  const { mutate } = useUpdateItem(listId);
 
   useEffect(() => {
     if (!isEditing) return;
@@ -50,17 +48,13 @@ export default function ItemComponent({ item, items, updateItem, deleteItem }: I
 
     if (items.some((item) => item.title === editedTitle)) {
       setError(
-        `You already have an item with the title "${editedTitle}". Please choose another name.`
+        `You already have an item with the title "${editedTitle}". Please choose another name.`,
       );
       return;
     }
 
-    void execute({ title: editedTitle, id }, { title: editedTitle });
+    mutate({ title: editedTitle, id: item.id });
     setIsEditing(false);
-  }
-
-  function toggleCheck(isChecked: boolean) {
-    void execute({ isChecked, id }, { isChecked });
   }
 
   function showEditTitleInput() {
@@ -78,13 +72,8 @@ export default function ItemComponent({ item, items, updateItem, deleteItem }: I
   }
 
   return (
-    <li className="group flex items-center p-2">
-      <ToggleItemCheck
-        isChecked={optimisticData.isChecked}
-        setError={setError}
-        toggleCheck={toggleCheck}
-        isExecuting={isExecuting}
-      />
+    <li className="item group peer flex items-center p-2">
+      <ToggleItemCheck id={item.id} isChecked={item.isChecked} listId={listId} />
       {isEditing ? (
         <>
           <form id="edit-title-form" className="flex-1" onSubmit={updateTitle}>
@@ -97,7 +86,7 @@ export default function ItemComponent({ item, items, updateItem, deleteItem }: I
               onKeyUp={closeOnEsc}
               id="editedTitle"
               name="editedTitle"
-              defaultValue={title}
+              defaultValue={item.title}
               required
             />
           </form>
@@ -105,10 +94,10 @@ export default function ItemComponent({ item, items, updateItem, deleteItem }: I
       ) : (
         <span
           className={`ml-4 truncate text-ellipsis ${
-            optimisticData.isChecked ? "text-zinc-400" : ""
+            item.isChecked ? "text-zinc-400" : ""
           } transition-colors duration-300`}
         >
-          {optimisticData.title}
+          {item.title}
         </span>
       )}
       <div
@@ -152,7 +141,7 @@ export default function ItemComponent({ item, items, updateItem, deleteItem }: I
             </button>
           </>
         )}
-        <DeleteItemBtn id={item.id} deleteItem={deleteItem} />
+        <DeleteItemBtn id={item.id} listId={listId} />
       </div>
       {error && (
         <Toast
@@ -170,16 +159,14 @@ export default function ItemComponent({ item, items, updateItem, deleteItem }: I
 
 type DeleteItemBtnProps = {
   id: string;
-  deleteItem: typeof deleteItem;
+  listId: string;
 };
 
-function DeleteItemBtn({ id, deleteItem }: DeleteItemBtnProps) {
-  const { items, setItems } = useItemsContext();
-  const { execute } = useAction(deleteItem);
+function DeleteItemBtn({ id, listId }: DeleteItemBtnProps) {
+  const { mutate } = useDeleteItem(listId);
 
   function executeDelete() {
-    void execute({ id });
-    setItems(items.filter((item) => item.id !== id));
+    mutate({ id });
   }
 
   return (
@@ -191,20 +178,25 @@ function DeleteItemBtn({ id, deleteItem }: DeleteItemBtnProps) {
 }
 
 type ToggleItemCheckProps = {
+  id: string;
   isChecked: boolean;
-  setError: (msg: string) => void;
-  toggleCheck: (isChecked: boolean) => void;
-  isExecuting: boolean;
+  listId: string;
 };
 
-function ToggleItemCheck({ isExecuting, toggleCheck, isChecked }: ToggleItemCheckProps) {
+function ToggleItemCheck({ id, isChecked, listId }: ToggleItemCheckProps) {
+  const { mutate, isPending } = useUpdateItem(listId);
+
+  function toggleCheck() {
+    mutate({ id, isChecked: !isChecked });
+  }
+
   return (
     <Checkbox.Root
       className="flex h-5 w-5 shrink-0 basis-5 items-center justify-center rounded transition-colors duration-300 focus:outline-none focus-visible:ring focus-visible:ring-purple-500 focus-visible:ring-opacity-75 radix-state-checked:bg-secondary radix-state-unchecked:bg-slate-800"
       defaultChecked={isChecked}
       checked={isChecked}
       onCheckedChange={toggleCheck}
-      disabled={isExecuting}
+      disabled={isPending}
     >
       <Checkbox.Indicator>
         <CheckIcon className="h-4 w-4 self-center text-white" />
