@@ -18,7 +18,8 @@ export default async function Notes() {
         instanceId: nanoid(),
         content: JSON.stringify({ type: "doc", content: [] }),
         userId: session.user.id,
-        updatedAt: new Date().toISOString(),
+        createdAt: String(Date.now()),
+        updatedAt: String(Date.now()),
       },
     });
   }
