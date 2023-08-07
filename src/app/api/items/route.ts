@@ -25,7 +25,9 @@ export async function GET(request: NextRequest) {
 
   const items = await getItems(listId);
 
-  const sortedItems = items.sort((a: Item, b: Item) => a.createdAt?.localeCompare(b.createdAt));
+  const sortedItems = items.sort((a: Item, b: Item) =>
+    String(a.createdAt).localeCompare(String(b.createdAt)),
+  );
 
   return NextResponse.json(sortedItems);
 }
@@ -48,7 +50,7 @@ export async function POST(request: NextRequest) {
 
   if (!list) return new Response("List not found", { status: 404 });
 
-  const time = String(Date.now());
+  const time = new Date();
 
   const newItem = await prisma.item.create({
     data: {
@@ -89,6 +91,7 @@ export async function PATCH(request: NextRequest) {
     data: {
       ...(data.title ? { title: data.title } : {}),
       ...(data.isChecked != null ? { isChecked: data.isChecked } : {}),
+      updatedAt: new Date(),
     },
     where: { id: data.id },
     select: { id: true, title: true, isChecked: true },

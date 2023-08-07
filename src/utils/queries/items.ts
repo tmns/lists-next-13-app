@@ -22,8 +22,7 @@ export function useGetItems(listId: string, headers: ReadonlyHeaders) {
           cache: "no-store",
         });
         const items = (await res.json()) as Item[];
-        const sortedItems = items.sort((a, b) => a.createdAt?.localeCompare(b.createdAt));
-        return sortedItems;
+        return items;
       } catch (e) {
         console.log({ e });
       }

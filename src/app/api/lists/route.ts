@@ -13,7 +13,9 @@ export async function GET() {
 
   const lists = await getLists(session.user.id);
 
-  const sortedLists = lists.sort((a: List, b: List) => a.createdAt?.localeCompare(b.createdAt));
+  const sortedLists = lists.sort((a: List, b: List) =>
+    String(a.createdAt).localeCompare(String(b.createdAt)),
+  );
 
   return NextResponse.json(sortedLists);
 }
@@ -26,7 +28,7 @@ export async function POST(request: NextRequest) {
 
   const data = (await request.json()) as { name: string };
 
-  const time = String(Date.now());
+  const time = new Date();
 
   const newList = await prisma.list.create({
     data: {
@@ -56,7 +58,7 @@ export async function PATCH(request: NextRequest) {
   if (!listToUpdate) return new Response("List not found", { status: 404 });
 
   const updatedList = await prisma.list.update({
-    data: { name: data.name, updatedAt: String(Date.now()) },
+    data: { name: data.name, updatedAt: new Date() },
     where: { id: data.id },
     select: { id: true, name: true },
   });

@@ -6,10 +6,9 @@ generator client {
 }
 
 datasource db {
-  provider          = "postgresql"
-  url               = env("POSTGRES_PRISMA_URL") // uses connection pooling
-  directUrl         = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
-  shadowDatabaseUrl = env("POSTGRES_URL_NON_POOLING") // used for migrations
+  provider     = "mysql"
+  url          = env("DATABASE_URL") // uses connection pooling
+  relationMode = "prisma"
 }
 
 model Example {
@@ -69,38 +68,38 @@ model VerificationToken {
 }
 
 model List {
-  id        String @id @default(cuid())
-  name      String @unique
+  id        String   @id @default(cuid())
+  name      String   @unique
   userId    String
-  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   items     Item[]
-  createdAt String
-  updatedAt String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
 
   @@index([userId])
 }
 
 model Item {
-  id        String  @id @default(cuid())
+  id        String   @id @default(cuid())
   title     String
   listId    String
-  list      List    @relation(fields: [listId], references: [id], onDelete: Cascade)
-  isChecked Boolean @default(false)
-  createdAt String
-  updatedAt String
+  list      List     @relation(fields: [listId], references: [id], onDelete: Cascade)
+  isChecked Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
 
   @@unique([title, listId])
   @@index([listId])
 }
 
 model Note {
-  id         String @id @default(cuid())
+  id         String   @id @default(cuid())
   userId     String
   instanceId String
-  user       User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  content    String @db.Text
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content    String   @db.Text
+  createdAt  DateTime @default(now())
   updatedAt  String
-  createdAt  String
 
   @@index([userId])
 }
