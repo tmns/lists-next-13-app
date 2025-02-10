@@ -6,19 +6,13 @@ generator client {
 }
 
 datasource db {
-  provider     = "mysql"
+  provider     = "postgresql"
   // NOTE: When using postgresql, mysql or sqlserver, uncomment the @db.Text annotations in model Account below
   // Further reading:
   // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
   // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
   url          = env("DATABASE_URL")
   relationMode = "prisma"
-}
-
-model Example {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
 
 // Necessary for Next auth
@@ -72,33 +66,38 @@ model VerificationToken {
 }
 
 model List {
-  id     String @id @default(cuid())
-  name   String @unique
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  items  Item[]
+  id        String   @id @default(cuid())
+  name      String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     Item[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
 
   @@index([userId])
 }
 
 model Item {
-  id        String  @id @default(cuid())
+  id        String   @id @default(cuid())
   title     String
   listId    String
-  list      List    @relation(fields: [listId], references: [id], onDelete: Cascade)
-  isChecked Boolean @default(false)
+  list      List     @relation(fields: [listId], references: [id], onDelete: Cascade)
+  isChecked Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
 
   @@unique([title, listId])
   @@index([listId])
 }
 
 model Note {
-  id         String @id @default(cuid())
+  id         String   @id @default(cuid())
   userId     String
   instanceId String
-  user       User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  content    String @db.Text
-  updatedAt  String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content    String   @db.Text
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now())
 
   @@index([userId])
 }

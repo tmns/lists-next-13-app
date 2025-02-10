@@ -1,4 +1,5 @@
 "use server";
+import type { ProviderItem } from "app/lists/[id]/ItemsProvider";
 import { action } from "lib/safe-action";
 import { revalidatePath } from "next/cache";
 import { prisma } from "server/db";
@@ -49,7 +50,7 @@ export const updateItem = action(
 
     revalidatePath(`/lists/${list.id}`);
 
-    return updatedItem;
+    return updatedItem as ProviderItem;
   }
 );
 

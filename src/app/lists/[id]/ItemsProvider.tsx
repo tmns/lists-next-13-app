@@ -3,7 +3,7 @@ import type { Item } from "@prisma/client";
 import type { Dispatch, SetStateAction } from "react";
 import { createContext, useContext, useState } from "react";
 
-export type ProviderItem = Item & { isLoading?: boolean };
+export type ProviderItem = Omit<Item, "createdAt" | "updatedAt"> & { isLoading?: boolean };
 
 const ItemsContext = createContext(
   {} as {

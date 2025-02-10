@@ -39,13 +39,16 @@ function subscribeNotesById(userId: string, cb: (note: Note) => void) {
     .then((note) => {
       if (closed) return;
       cb(note as Note);
-      const lastVersionstamps = new Map<string, string>();
+      const lastVersionstamps = new Map<string, Date>();
       bc.onmessage = (e) => {
         const { note } = e.data as { note: Note };
         console.log(
-          `received update for note ${note.id} from instance ${note.instanceId} at ${note.updatedAt}`
+          `received update for note ${note.id} from instance ${
+            note.instanceId
+          } at ${note.updatedAt.toISOString()}`
         );
-        if ((lastVersionstamps.get(note.id) ?? "") >= note.updatedAt) return;
+
+        if ((lastVersionstamps.get(note.id) ?? 0) >= note.updatedAt) return;
         lastVersionstamps.set(note.id, note.updatedAt);
         cb(note);
       };

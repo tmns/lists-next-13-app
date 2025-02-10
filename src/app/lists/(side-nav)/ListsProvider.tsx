@@ -3,7 +3,10 @@ import type { List } from "@prisma/client";
 import type { Dispatch, SetStateAction } from "react";
 import { createContext, useContext, useState } from "react";
 
-export type ProviderList = Omit<List, "userId"> & { userId?: string; isLoading?: boolean };
+export type ProviderList = Pick<List, "name" | "id"> & {
+  userId?: string;
+  isLoading?: boolean;
+};
 
 const ListsContext = createContext(
   {} as {
