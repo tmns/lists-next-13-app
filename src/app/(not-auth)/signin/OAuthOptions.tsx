@@ -20,7 +20,7 @@ export default function OAuthOptions() {
           <SpinningCircles width={20} height={20} fill="#000" stroke="#000" />
         ) : (
           <Image
-            src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg"
+            src="/google.svg"
             className="h-5 w-5"
             width={20}
             height={20}
@@ -41,7 +41,7 @@ export default function OAuthOptions() {
           <SpinningCircles width={20} height={20} fill="#404eed" stroke="#404eed" />
         ) : (
           <Image
-            src="https://www.svgrepo.com/download/353655/discord-icon.svg"
+            src="/discord.svg"
             className="h-5 w-5"
             width={20}
             height={20}
